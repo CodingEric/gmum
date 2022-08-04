@@ -15,7 +15,6 @@ private:
     int subdivision_theta;
     int subdivision_phi;
     int face_count = 0;
-
 signals:
 
 };

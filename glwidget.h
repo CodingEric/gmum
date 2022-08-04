@@ -11,9 +11,12 @@
 #include <QtMath>
 #include <QPainter>
 #include <QFile>
+#include <QKeyEvent>
+#include <QApplication>
 
 #include "globject.h"
 #include "reflectosphere.h"
+#include "lightbeam.h"
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
@@ -25,10 +28,11 @@ protected:
     virtual void resizeGL(int w, int h) override;
     virtual void paintGL() override;
     virtual void timerEvent(QTimerEvent *event) override;
+
+    void keyPressEvent(QKeyEvent *e) override;
 private:
     void generateHalfUVSphere(const float radius, const unsigned int subdivision_theta, const unsigned int subdivision_phi);
     QOpenGLShaderProgram* m_program;
-    QOpenGLTexture* m_texture;
     QMatrix4x4 m_view;
     QMatrix4x4 m_projection;
     QMatrix4x4 m_model;

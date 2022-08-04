@@ -20,6 +20,7 @@ public:
 protected:
     QOpenGLVertexArrayObject vao;
     QOpenGLBuffer vbo;
+    QOpenGLTexture* texture;
 };
 
 #endif // GLOBJECT_H

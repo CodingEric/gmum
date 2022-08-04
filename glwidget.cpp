@@ -7,7 +7,8 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget{parent}
     new_format.setSamples(16);
     this->setFormat(new_format);
 
-    objects.push_back(new ReflectoSphere(this));
+    objects.push_back(new ReflectoSphere(this,32,32));
+    objects.push_back(new LightBeam(M_PI_2, M_PI_4, 32, this));
 
     resize(800,600);
     startTimer(1000/60);
@@ -26,15 +27,14 @@ void GLWidget::timerEvent(QTimerEvent *event){
 
 
 void GLWidget::initializeGL(){
-    m_texture = new QOpenGLTexture(QImage("D:/displacement.png").mirrored());
-
 
     initializeOpenGLFunctions();
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(0,1,0,1);
+    glClearColor(0,0,1,1);
 
     QFile vertex_shader_file(":/shaders/vertexshader.glsl");
     vertex_shader_file.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -57,7 +57,6 @@ void GLWidget::initializeGL(){
 }
 
 void GLWidget::paintGL() {
-    m_texture->bind();
     m_program->bind();
 
     // 这跟顶点着色器的 uniform mat4 view 对应
@@ -71,21 +70,23 @@ void GLWidget::paintGL() {
     }
 
     m_program->release();
-    m_texture->release();
 
     QPainter painter(this);
     auto rect = this->rect();
-    painter.setPen(Qt::black);
+    painter.setPen(Qt::white);
     painter.setFont(QFont("Consolas",15));
-    painter.drawText(QPoint{5,15},QString("GONIOREFLECTOMETER UPPER MONITOR"),30,0);
+    painter.drawText(rect, Qt::AlignRight, QString("GONIOREFLECTOMETER UPPER MONITOR\nPress [ESC] to quit."));
 
 }
 
 void GLWidget::resizeGL(int w, int h) {
     m_view.setToIdentity();
-    m_view.lookAt(QVector3D(3, 3, 3), QVector3D(0, 0, 0), QVector3D(0, 1, 0));
-    //m_model.setToIdentity();
+    m_view.lookAt(QVector3D(2, 2, 2), QVector3D(0, 0, 0), QVector3D(0, 1, 0));
     m_projection.setToIdentity();
-    //m_projection.ortho(0, w, 0, h, 0, 65535);
     m_projection.perspective(60,(float)w/h,0.001,1000);
+}
+
+void GLWidget::keyPressEvent(QKeyEvent *e){
+    if (e->key() == Qt::Key_Escape)
+        QApplication::quit();
 }

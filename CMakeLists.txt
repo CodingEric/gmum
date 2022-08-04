@@ -20,5 +20,6 @@ add_executable(GMUM
   globject.h globject.cpp
   glwidget.h glwidget.cpp
   reflectosphere.h reflectosphere.cpp
+  lightbeam.h lightbeam.cpp
 )
 target_link_libraries(GMUM Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::OpenGLWidgets)

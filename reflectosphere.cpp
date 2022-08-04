@@ -20,6 +20,8 @@ private:
 void ReflectoSphere::InitializeObject(QOpenGLShaderProgram* m_program){
     initializeOpenGLFunctions();
 
+    texture = new QOpenGLTexture(QImage("D:/displacement.png").mirrored());
+
     vao.create();
     vbo.create();
 
@@ -63,10 +65,11 @@ void ReflectoSphere::InitializeObject(QOpenGLShaderProgram* m_program){
 void ReflectoSphere::PaintObject(QOpenGLShaderProgram* m_program){
     vao.bind();
 
-
+    texture->bind();
     for(int i=0;i<face_count;++i){
         glDrawArrays(GL_POLYGON, 4*i, 4);
     }
+    texture->release();
     //glDrawArrays(GL_POLYGON, 4, 4);
 
     vao.release();
