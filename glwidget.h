@@ -31,7 +31,6 @@ protected:
 
     void keyPressEvent(QKeyEvent *e) override;
 private:
-    void generateHalfUVSphere(const float radius, const unsigned int subdivision_theta, const unsigned int subdivision_phi);
     QOpenGLShaderProgram* m_program;
     QMatrix4x4 m_view;
     QMatrix4x4 m_projection;

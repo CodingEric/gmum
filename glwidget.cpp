@@ -16,7 +16,6 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget{parent}
 
 float offset = 0;
 
-
 void GLWidget::timerEvent(QTimerEvent *event){
     offset += 1;
     if(offset >= 360)offset = 0;

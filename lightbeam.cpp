@@ -20,12 +20,10 @@ void LightBeam::InitializeObject(QOpenGLShaderProgram* m_program){
         length * qCos(phi)*qSin(theta), length * qCos(theta), length * qSin(phi)*qSin(theta), 0.0f, 0.0f,
     };
 
-    vbo.bind();
-    vbo.allocate(vertices, sizeof(vertices));
-    vbo.release();
 
     vao.bind();
     vbo.bind();
+    vbo.allocate(vertices, sizeof(vertices));
 
     m_program->bind();
 

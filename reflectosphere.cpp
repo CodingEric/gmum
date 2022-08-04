@@ -40,13 +40,12 @@ void ReflectoSphere::InitializeObject(QOpenGLShaderProgram* m_program){
             vertices.push_back(Point(qCos(phi)*qSin(theta),qCos(theta),qSin(phi)*qSin(theta), static_cast<float>(theta/M_PI_2), static_cast<float>(phi/(2.0f * M_PI)))); // theta, phi
             ++face_count;
         }
-    }
-    vbo.bind();
-    vbo.allocate(&vertices[0], vertices.size() * sizeof(Point));
-    vbo.release();
+    } 
 
     vao.bind();
     vbo.bind();
+
+    vbo.allocate(&vertices[0], vertices.size() * sizeof(Point));
 
     m_program->bind();
 
