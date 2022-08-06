@@ -19,6 +19,10 @@ private:
 
 void ReflectoSphere::InitializeObject(QOpenGLShaderProgram* m_program){
     initializeOpenGLFunctions();
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+
     QImage temp_texture(1,1,QImage::Format_RGB32);
     temp_texture.fill(Qt::magenta);
     texture = new QOpenGLTexture(temp_texture);
@@ -33,8 +37,8 @@ void ReflectoSphere::InitializeObject(QOpenGLShaderProgram* m_program){
 
     std::vector<Point> vertices;
 
-    for(float theta = 0.0f + d_theta; theta <= M_PI_2; theta += d_theta){
-        for(float phi = 0.0f; phi <= 2.0f * M_PI; phi += d_phi){
+    for(float theta = 0.0f + d_theta; theta < M_PI_2 - d_theta; theta += d_theta){
+        for(float phi = 0.0f; phi < 2.0f * M_PI; phi += d_phi){
             vertices.push_back(Point(qCos(phi)*qSin(theta - d_theta),qCos(theta - d_theta),qSin(phi)*qSin(theta - d_theta),static_cast<float>(phi/(2.0f * M_PI)), static_cast<float>((theta - d_theta)/M_PI_2))); // theta - d_theta, phi
             vertices.push_back(Point(qCos(phi + d_phi)*qSin(theta - d_theta),qCos(theta - d_theta),qSin(phi + d_phi)*qSin(theta - d_theta), static_cast<float>((phi + d_phi)/(2.0f * M_PI)), static_cast<float>((theta - d_theta)/(M_PI_2)))); // theta - d_theta, phi + d_phi
             vertices.push_back(Point(qCos(phi + d_phi)*qSin(theta),qCos(theta),qSin(phi + d_phi)*qSin(theta), static_cast<float>((phi + d_phi)/(2.0f * M_PI)), static_cast<float>(theta/(M_PI_2)))); // theta, phi + d_phi

@@ -51,7 +51,8 @@ void LightBeam::PaintObject(QOpenGLShaderProgram* m_program){
 
 
 void LightBeam::SetDirection(float theta, float phi){
-    qDebug()<<"test";
+    this->theta = theta;
+    this->phi = phi;
     vbo.bind();
     float* vertices = static_cast<float*>(vbo.map(QOpenGLBuffer::WriteOnly));
     vertices[5] =  length * qCos(phi) * qSin(theta);

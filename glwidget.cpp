@@ -17,6 +17,8 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget{parent}
 
     is_ray_visible = true;
     is_sphere_visible = true;
+    no_data = true;
+    do_displacement = true;
 
     startTimer(1000/60);
 }
@@ -36,11 +38,11 @@ void GLWidget::initializeGL(){
 
     initializeOpenGLFunctions();
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0,0,1,1);
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
 
     QFile vertex_shader_file(":/shaders/vertexshader.glsl");
     vertex_shader_file.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -69,6 +71,10 @@ void GLWidget::initializeGL(){
 }
 
 void GLWidget::paintGL() {
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+
     m_program->bind();
 
     // 这跟顶点着色器的 uniform mat4 view 对应
@@ -76,6 +82,7 @@ void GLWidget::paintGL() {
     m_program->setUniformValue("view",m_view);
     m_program->setUniformValue("projection",m_projection);
     m_program->setUniformValue("model",m_model);
+    m_program->setUniformValue("do_displacement",do_displacement);
 
     /*
     for(std::vector<GLObject*>::iterator it = objects.begin();it!=objects.end();++it){
@@ -83,26 +90,37 @@ void GLWidget::paintGL() {
         (*it)->PaintObject(m_program);
     }
     */
-
-    reflecto_sphere->PaintObject(m_program);
-    inray->PaintObject(m_program);
-    outray->PaintObject(m_program);
-    normal->PaintObject(m_program);
+    if(is_sphere_visible)
+        reflecto_sphere->PaintObject(m_program);
+    if(is_ray_visible)
+    {
+        inray->PaintObject(m_program);
+        outray->PaintObject(m_program);
+        normal->PaintObject(m_program);
+    }
 
     m_program->release();
 
     QPainter painter(this);
     auto rect = this->rect();
     painter.setPen(Qt::white);
-    painter.setFont(QFont("Consolas",8));
+    painter.setFont(QFont("Consolas",12));
     painter.drawText(rect, Qt::AlignRight, QString("GONIOREFLECTOMETER UPPER MONITOR"));
     painter.setPen(Qt::red);
-    painter.drawText(rect, Qt::AlignRight, QString("\nIncident theta: ")+QString::number(inray->GetTheta()));
-    painter.drawText(rect, Qt::AlignRight, QString("\n\nIncident phi: ")+QString::number(inray->GetPhi()));
+    painter.drawText(rect, Qt::AlignRight, QString("\nIncident theta: ")+QString::number(inray->GetTheta())+QString(" rad"));
+    painter.drawText(rect, Qt::AlignRight, QString("\n\nIncident phi: ")+QString::number(inray->GetPhi())+QString(" rad"));
     painter.setPen(Qt::green);
-    painter.drawText(rect, Qt::AlignRight, QString("\n\n\nIdeal specular reflected theta: ")+QString::number(outray->GetTheta()));
-    painter.drawText(rect, Qt::AlignRight, QString("\n\n\n\nIdeal specular reflected phi: ")+QString::number(outray->GetPhi()));
-    painter.end();
+    painter.drawText(rect, Qt::AlignRight, QString("\n\n\nIdeal specular reflected theta: ")+QString::number(outray->GetTheta())+QString(" rad"));
+    painter.drawText(rect, Qt::AlignRight, QString("\n\n\n\nIdeal specular reflected phi: ")+QString::number(outray->GetPhi())+QString(" rad"));
+
+    painter.setPen(Qt::white);
+    painter.drawText(rect, Qt::AlignBottom | Qt::AlignRight, QString("QOpenGLContext::openGLModuleType() returns ") + QString::number(QOpenGLContext::openGLModuleType()));
+
+    if(no_data){
+        painter.setPen(Qt::white);
+        painter.setFont(QFont("Consolas",16));
+        painter.drawText(rect, Qt::AlignCenter, QString("ERROR: NO GONIOREFLECTOMETER DATA."));
+    }
 }
 
 void GLWidget::resizeGL(int w, int h) {
@@ -136,4 +154,9 @@ void GLWidget::slotSetSphereTexture(QImage* image, float incident_theta, float i
     // inray->InitializeObject(m_program);
     inray->SetDirection(incident_theta, incident_phi);
     outray->SetDirection(incident_theta, incident_phi+M_PI);
+    no_data = false;
+}
+
+void GLWidget::setDoDisplacement(bool _do_displacement){
+    do_displacement = _do_displacement;
 }

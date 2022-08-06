@@ -31,6 +31,7 @@ private:
     GLWidget* gl_widget;
     QCheckBox* chkbox_ray_visibility;
     QCheckBox* chkbox_sphere_visibility;
+    QCheckBox* chkbox_do_displacement;
 
     QGroupBox* groupbox_phong;
     QGroupBox* groupbox_reflectometer;
@@ -45,13 +46,24 @@ private:
     QLabel* label_phong_calculated_image;
 
     QImage* phong_texture;
+    QImage* meter_texture;
 
     QPushButton* button_calc_phong_map;
     QPushButton* button_phong_import;
 
+    QSpinBox* spinbox_meter_re_theta;
+    QSpinBox* spinbox_meter_re_phi;
+    QLabel* label_meter_re_phi;
+    QLabel* label_meter_re_theta;
+    QLabel* label_meter_calculated_image;
+
+    QPushButton* button_calc_meter_map;
+    QPushButton* button_meter_import;
+
 private slots:
     void onChkboxRayVisibilityStateChanged(int state);
     void onChkboxSphereVisibilityStateChanged(int state);
+    void onChkboxDoDisplacementStateChanged(int state);
     void onButtonCalcPhongMapClicked();
     void onButtonPhongImportClicked();
 signals:

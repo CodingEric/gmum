@@ -13,6 +13,7 @@
 #include <QFile>
 #include <QKeyEvent>
 #include <QApplication>
+#include <QDateTime>
 
 #include "globject.h"
 #include "reflectosphere.h"
@@ -23,6 +24,7 @@ class GLWidget : public QOpenGLWidget, protected QOpenGLExtraFunctions
     Q_OBJECT
 public:
     GLWidget(QWidget *parent = nullptr);
+    void setDoDisplacement(bool _do_displacement);
 protected:
     virtual void initializeGL() override;
     virtual void resizeGL(int w, int h) override;
@@ -43,6 +45,8 @@ private:
 
     bool is_ray_visible;
     bool is_sphere_visible;
+    bool no_data;
+    bool do_displacement;
     // std::map<GLObject*, bool> object_visibility;
 private slots:
     void slotSetGLWidgetRayState(bool is_visible);
