@@ -4,7 +4,7 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget{parent}
 {
     // 打开多重采样。
     auto new_format = this->format();
-    new_format.setSamples(16);
+    // new_format.setSamples(16);
     this->setFormat(new_format);
 
     reflecto_sphere = new ReflectoSphere(this,64,64);
@@ -44,45 +44,20 @@ void GLWidget::initializeGL(){
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    QFile vertex_shader_file(":/shaders/vertexshader.glsl");
-    vertex_shader_file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QString vertex_shader = vertex_shader_file.readAll();
-
-    QFile fragment_shader_file(":/shaders/fragmentshader.glsl");
-    fragment_shader_file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QString fragment_shader = fragment_shader_file.readAll();
-
-    m_program = new QOpenGLShaderProgram();
-    m_program -> addShaderFromSourceCode(QOpenGLShader::Vertex, vertex_shader);
-    m_program -> addShaderFromSourceCode(QOpenGLShader::Fragment, fragment_shader);
-    m_program -> link();
-
     /*
     for(std::vector<GLObject*>::iterator it = objects.begin();it!=objects.end();++it){
         (*it)->InitializeObject(m_program);
     }
     */
 
-    inray -> InitializeObject(m_program);
-    outray -> InitializeObject(m_program);
-    reflecto_sphere -> InitializeObject(m_program);
-    normal -> InitializeObject(m_program);
+    inray -> InitializeObject();
+    outray -> InitializeObject();
+    reflecto_sphere -> InitializeObject();
+    normal -> InitializeObject();
 
 }
 
 void GLWidget::paintGL() {
-
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-
-    m_program->bind();
-
-    // 这跟顶点着色器的 uniform mat4 view 对应
-    // uniform 值和 in/out 相比，uniform是所有着色器统一使用的相同的值。
-    m_program->setUniformValue("view",m_view);
-    m_program->setUniformValue("projection",m_projection);
-    m_program->setUniformValue("model",m_model);
-    m_program->setUniformValue("do_displacement",do_displacement);
 
     /*
     for(std::vector<GLObject*>::iterator it = objects.begin();it!=objects.end();++it){
@@ -91,15 +66,13 @@ void GLWidget::paintGL() {
     }
     */
     if(is_sphere_visible)
-        reflecto_sphere->PaintObject(m_program);
+        reflecto_sphere->PaintObject(m_view, m_projection, m_model, do_displacement);
     if(is_ray_visible)
     {
-        inray->PaintObject(m_program);
-        outray->PaintObject(m_program);
-        normal->PaintObject(m_program);
+        inray->PaintObject(m_view, m_projection, m_model, do_displacement);
+        outray->PaintObject(m_view, m_projection, m_model, do_displacement);
+        normal->PaintObject(m_view, m_projection, m_model, do_displacement);
     }
-
-    m_program->release();
 
     QPainter painter(this);
     auto rect = this->rect();

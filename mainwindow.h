@@ -26,14 +26,23 @@ public:
 private:
     QHBoxLayout* main_layout;
     QVBoxLayout* controller_layout;
-    QVBoxLayout* groupbox_phong_layout;
+
+// BEGIN groupbox_phong
+
+    QGroupBox* groupbox_phong;
+    QVBoxLayout* groupbox_phong_main_layout;
+    QHBoxLayout* groupbox_phong_secondary_layout;
+    QVBoxLayout* groupbox_phong_sublayout1;
+    QVBoxLayout* groupbox_phong_sublayout2;
+
+// END groupbox_phong
+
     QVBoxLayout* groupbox_reflectometer_layout;
     GLWidget* gl_widget;
     QCheckBox* chkbox_ray_visibility;
     QCheckBox* chkbox_sphere_visibility;
     QCheckBox* chkbox_do_displacement;
 
-    QGroupBox* groupbox_phong;
     QGroupBox* groupbox_reflectometer;
 
     QSpinBox* spinbox_phong_in_theta;
@@ -59,6 +68,19 @@ private:
 
     QPushButton* button_calc_meter_map;
     QPushButton* button_meter_import;
+
+// BEGIN groupbox_phong_sublayout2
+
+    QLabel* label_ka;
+    QDoubleSpinBox* spinbox_ka;
+
+    QLabel* label_kd;
+    QDoubleSpinBox* spinbox_kd;
+
+    QLabel* label_ks;
+    QDoubleSpinBox* spinbox_ks;
+
+// END groupbox_phong_sublayout2
 
 private slots:
     void onChkboxRayVisibilityStateChanged(int state);

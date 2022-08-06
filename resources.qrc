@@ -2,5 +2,7 @@
     <qresource lang="glsl" prefix="/">
         <file>shaders/sphere.fsh</file>
         <file>shaders/sphere.vsh</file>
+        <file>shaders/ray.fsh</file>
+        <file>shaders/ray.vsh</file>
     </qresource>
 </RCC>

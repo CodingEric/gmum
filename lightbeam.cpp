@@ -5,8 +5,23 @@ LightBeam::LightBeam(float _theta, float _phi, float _length, QColor _color, QWi
 
 }
 
-void LightBeam::InitializeObject(QOpenGLShaderProgram* m_program){
+void LightBeam::InitializeObject(){
     initializeOpenGLFunctions();
+
+    QFile vertex_shader_file(":/shaders/ray.vsh");
+    vertex_shader_file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QString vertex_shader = vertex_shader_file.readAll();
+
+    QFile fragment_shader_file(":/shaders/ray.fsh");
+    fragment_shader_file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QString fragment_shader = fragment_shader_file.readAll();
+
+    program = new QOpenGLShaderProgram();
+    program -> addShaderFromSourceCode(QOpenGLShader::Vertex, vertex_shader);
+    program -> addShaderFromSourceCode(QOpenGLShader::Fragment, fragment_shader);
+    program -> link();
+
+
 
     QImage solid_color_image(1,1,QImage::Format_RGB16);
     solid_color_image.fill(color);
@@ -25,21 +40,30 @@ void LightBeam::InitializeObject(QOpenGLShaderProgram* m_program){
     vbo.bind();
     vbo.allocate(vertices, sizeof(vertices));
 
-    m_program->bind();
+    program->bind();
 
     // 最后一个参数代表偏移量（周期），表示元组大小的数据不需要乘上float的大小。
-    m_program->setAttributeBuffer("vPos", GL_FLOAT, 0 * sizeof(float), 3, 5 * sizeof(float));
-    m_program->enableAttributeArray("vPos");
+    program->setAttributeBuffer("vPos", GL_FLOAT, 0 * sizeof(float), 3, 5 * sizeof(float));
+    program->enableAttributeArray("vPos");
 
-    m_program->setAttributeBuffer("vTexture", GL_FLOAT, 3 * sizeof(float), 2, 5 * sizeof(float));
-    m_program->enableAttributeArray("vTexture");
+    program->setAttributeBuffer("vTexture", GL_FLOAT, 3 * sizeof(float), 2, 5 * sizeof(float));
+    program->enableAttributeArray("vTexture");
 
-    m_program->release();
+    program->release();
     vao.release();
     vbo.release();
 }
 
-void LightBeam::PaintObject(QOpenGLShaderProgram* m_program){
+void LightBeam::PaintObject(QMatrix4x4 m_view, QMatrix4x4 m_projection, QMatrix4x4 m_model, bool do_displacement){
+    program->bind();
+
+    // 这跟顶点着色器的 uniform mat4 view 对应
+    // uniform 值和 in/out 相比，uniform是所有着色器统一使用的相同的值。
+    program->setUniformValue("view",m_view);
+    program->setUniformValue("projection",m_projection);
+    program->setUniformValue("model",m_model);
+    program->setUniformValue("do_displacement",do_displacement);
+
     vao.bind();
 
     texture->bind();
@@ -47,6 +71,8 @@ void LightBeam::PaintObject(QOpenGLShaderProgram* m_program){
     texture->release();
 
     vao.release();
+
+    program->release();
 }
 
 

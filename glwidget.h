@@ -33,7 +33,6 @@ protected:
 
     void keyPressEvent(QKeyEvent *e) override;
 private:
-    QOpenGLShaderProgram* m_program;
     QMatrix4x4 m_view;
     QMatrix4x4 m_projection;
     QMatrix4x4 m_model;

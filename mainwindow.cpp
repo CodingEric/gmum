@@ -48,15 +48,14 @@ MainWindow::MainWindow()
     label_meter_calculated_image = new QLabel(this);
     label_meter_calculated_image->setPixmap(QPixmap::fromImage(*meter_texture));
 
-    groupbox_phong = new QGroupBox("Phong Lighting Model", this);
-    groupbox_reflectometer = new QGroupBox("Reflectometer Data", this);
+    groupbox_phong = new QGroupBox("基于Phong光照模型的反射计取数模拟", this);
+    groupbox_reflectometer = new QGroupBox("反射计数据", this);
 
     main_layout = new QHBoxLayout(this);
     controller_layout = new QVBoxLayout();
-    groupbox_phong_layout = new QVBoxLayout();
+
     groupbox_reflectometer_layout = new QVBoxLayout();
 
-    groupbox_phong->setLayout(groupbox_phong_layout);
     groupbox_reflectometer->setLayout(groupbox_reflectometer_layout);
 
     controller_layout->addWidget(chkbox_ray_visibility);
@@ -70,15 +69,72 @@ MainWindow::MainWindow()
     main_layout->setSpacing(10);
     this->setLayout(main_layout);
 
-    groupbox_phong_layout->addWidget(label_phong_in_phi,0,Qt::AlignLeft | Qt::AlignTop);
-    groupbox_phong_layout->addWidget(spinbox_phong_in_phi,0,Qt::AlignLeft | Qt::AlignTop);
-    groupbox_phong_layout->addWidget(label_phong_in_theta,0,Qt::AlignLeft | Qt::AlignTop);
-    groupbox_phong_layout->addWidget(spinbox_phong_in_theta,0,Qt::AlignLeft | Qt::AlignTop);
-    groupbox_phong_layout->addWidget(label_phong_order,0,Qt::AlignLeft | Qt::AlignTop);
-    groupbox_phong_layout->addWidget(spinbox_phong_order,0,Qt::AlignLeft | Qt::AlignTop);
-    groupbox_phong_layout->addWidget(button_calc_phong_map,0,Qt::AlignLeft | Qt::AlignTop);
-    groupbox_phong_layout->addWidget(label_phong_calculated_image,0,Qt::AlignLeft | Qt::AlignTop);
-    groupbox_phong_layout->addWidget(button_phong_import,0,Qt::AlignLeft | Qt::AlignTop);
+// BEGIN groupbox_phong
+
+    groupbox_phong_main_layout = new QVBoxLayout();
+    groupbox_phong_secondary_layout = new QHBoxLayout();
+    groupbox_phong_sublayout1 = new QVBoxLayout();
+    groupbox_phong_sublayout2 = new QVBoxLayout();
+
+    groupbox_phong->setLayout(groupbox_phong_main_layout);
+
+    groupbox_phong_main_layout -> addLayout(groupbox_phong_secondary_layout);
+
+    groupbox_phong_main_layout->addWidget(button_calc_phong_map,0,Qt::AlignLeft | Qt::AlignTop);
+    groupbox_phong_main_layout->addWidget(label_phong_calculated_image,0,Qt::AlignLeft | Qt::AlignTop);
+    groupbox_phong_main_layout->addWidget(button_phong_import,0,Qt::AlignLeft | Qt::AlignTop);
+
+    groupbox_phong_secondary_layout->addLayout(groupbox_phong_sublayout1);
+    groupbox_phong_secondary_layout->addLayout(groupbox_phong_sublayout2);
+
+// BEGIN groupbox_phong_sublayout1
+
+    groupbox_phong_sublayout1->addWidget(label_phong_in_phi,0,Qt::AlignLeft | Qt::AlignTop);
+    groupbox_phong_sublayout1->addWidget(spinbox_phong_in_phi,0,Qt::AlignLeft | Qt::AlignTop);
+
+    groupbox_phong_sublayout1->addWidget(label_phong_in_theta,0,Qt::AlignLeft | Qt::AlignTop);
+    groupbox_phong_sublayout1->addWidget(spinbox_phong_in_theta,0,Qt::AlignLeft | Qt::AlignTop);
+
+    groupbox_phong_sublayout1->addWidget(label_phong_order,0,Qt::AlignLeft | Qt::AlignTop);
+    groupbox_phong_sublayout1->addWidget(spinbox_phong_order,0,Qt::AlignLeft | Qt::AlignTop);
+
+// END groupbox_phong_sublayout1
+
+// BEGIN groupbox_phong_sublayout2
+
+    label_ka = new QLabel("环境光强度系数", this);
+    spinbox_ka = new QDoubleSpinBox(this);
+    spinbox_ka->setMaximum(1);
+    spinbox_ka->setMinimum(0);
+    spinbox_ka->setSingleStep(0.001);
+    spinbox_ka->setDecimals(4);
+
+    label_kd = new QLabel("散射光强度系数", this);
+    spinbox_kd = new QDoubleSpinBox(this);
+    spinbox_kd->setMaximum(1);
+    spinbox_kd->setMinimum(0);
+    spinbox_kd->setSingleStep(0.001);
+    spinbox_kd->setDecimals(4);
+
+    label_ks = new QLabel("各向异性反射强度系数", this);
+    spinbox_ks = new QDoubleSpinBox(this);
+    spinbox_ks->setMaximum(1);
+    spinbox_ks->setMinimum(0);
+    spinbox_ks->setSingleStep(0.001);
+    spinbox_ks->setDecimals(4);
+
+    groupbox_phong_sublayout2->addWidget(label_ka,0,Qt::AlignLeft | Qt::AlignTop);
+    groupbox_phong_sublayout2->addWidget(spinbox_ka,0,Qt::AlignLeft | Qt::AlignTop);
+
+    groupbox_phong_sublayout2->addWidget(label_kd,0,Qt::AlignLeft | Qt::AlignTop);
+    groupbox_phong_sublayout2->addWidget(spinbox_kd,0,Qt::AlignLeft | Qt::AlignTop);
+
+    groupbox_phong_sublayout2->addWidget(label_ks,0,Qt::AlignLeft | Qt::AlignTop);
+    groupbox_phong_sublayout2->addWidget(spinbox_ks,0,Qt::AlignLeft | Qt::AlignTop);
+
+// END groupbox_phong_sublayout2
+
+// END groupbox_phong
 
     groupbox_reflectometer_layout->addWidget(label_meter_re_phi,0,Qt::AlignLeft | Qt::AlignTop);
     groupbox_reflectometer_layout->addWidget(spinbox_meter_re_phi,0,Qt::AlignLeft | Qt::AlignTop);
