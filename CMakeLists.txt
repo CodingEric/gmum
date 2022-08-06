@@ -17,6 +17,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core OpenGLWidgets)
 add_executable(GMUM
   resources.qrc
   main.cpp
+  mainwindow.h mainwindow.cpp
   globject.h globject.cpp
   glwidget.h glwidget.cpp
   reflectosphere.h reflectosphere.cpp

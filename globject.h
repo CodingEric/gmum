@@ -17,7 +17,7 @@ public:
     GLObject(QWidget *parent = nullptr);
     virtual void InitializeObject(QOpenGLShaderProgram* m_program) = 0;
     virtual void PaintObject(QOpenGLShaderProgram* m_program) = 0;
-    void set_texture(const QOpenGLTexture _texture);
+    void setTexture(QOpenGLTexture* _texture);
 
 protected:
     QOpenGLVertexArrayObject vao;

@@ -1,0 +1,63 @@
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include <QObject>
+#include <QWidget>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QCheckBox>
+#include <QGroupBox>
+#include <QSpinBox>
+#include <QLineEdit>
+#include <QtDebug>
+#include <QLabel>
+#include <QImage>
+#include <QVector3D>
+#include <QtMath>
+
+#include "glwidget.h"
+
+class MainWindow : public QWidget
+{
+    Q_OBJECT
+public:
+    MainWindow();
+private:
+    QHBoxLayout* main_layout;
+    QVBoxLayout* controller_layout;
+    QVBoxLayout* groupbox_phong_layout;
+    QVBoxLayout* groupbox_reflectometer_layout;
+    GLWidget* gl_widget;
+    QCheckBox* chkbox_ray_visibility;
+    QCheckBox* chkbox_sphere_visibility;
+
+    QGroupBox* groupbox_phong;
+    QGroupBox* groupbox_reflectometer;
+
+    QSpinBox* spinbox_phong_in_theta;
+    QSpinBox* spinbox_phong_in_phi;
+    QSpinBox* spinbox_phong_order;
+
+    QLabel* label_phong_in_phi;
+    QLabel* label_phong_in_theta;
+    QLabel* label_phong_order;
+    QLabel* label_phong_calculated_image;
+
+    QImage* phong_texture;
+
+    QPushButton* button_calc_phong_map;
+    QPushButton* button_phong_import;
+
+private slots:
+    void onChkboxRayVisibilityStateChanged(int state);
+    void onChkboxSphereVisibilityStateChanged(int state);
+    void onButtonCalcPhongMapClicked();
+    void onButtonPhongImportClicked();
+signals:
+    void signalSetGLWidgetRayState(bool is_visible);
+    void signalSetGLWidgetSphereState(bool is_visible);
+    void signalPhongImport(QImage* texture, float incident_theta, float incident_phi);
+};
+
+#endif // MAINWINDOW_H

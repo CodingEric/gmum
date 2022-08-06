@@ -5,6 +5,7 @@ GLObject::GLObject(QWidget *parent) : QOpenGLWidget{parent}
 
 }
 
-void GLObject::set_texture(const QOpenGLTexture _texture){
-    texture(_texture);
+void GLObject::setTexture(QOpenGLTexture* _texture){
+    delete texture;
+    texture = _texture;
 }

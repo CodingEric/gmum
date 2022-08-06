@@ -7,10 +7,17 @@ GLWidget::GLWidget(QWidget *parent) : QOpenGLWidget{parent}
     new_format.setSamples(16);
     this->setFormat(new_format);
 
-    objects.push_back(new ReflectoSphere(this,32,32));
-    objects.push_back(new LightBeam(M_PI_2, M_PI_4, 32, this));
+    reflecto_sphere = new ReflectoSphere(this,64,64);
+    // object_visibility[*(objects.end()-1)] = true;
+    inray = new LightBeam(M_PI_2, M_PI_4, 32, Qt::red, this);
+    outray = new LightBeam(M_PI_2, M_PI_4, 32, Qt::green, this);
+    // object_visibility[*(objects.end()-1)] = true;
+    // resize(800,600);
+    normal = new LightBeam(0,0, 32, Qt::yellow, this);
 
-    resize(800,600);
+    is_ray_visible = true;
+    is_sphere_visible = true;
+
     startTimer(1000/60);
 }
 
@@ -48,10 +55,16 @@ void GLWidget::initializeGL(){
     m_program -> addShaderFromSourceCode(QOpenGLShader::Fragment, fragment_shader);
     m_program -> link();
 
+    /*
     for(std::vector<GLObject*>::iterator it = objects.begin();it!=objects.end();++it){
         (*it)->InitializeObject(m_program);
     }
+    */
 
+    inray -> InitializeObject(m_program);
+    outray -> InitializeObject(m_program);
+    reflecto_sphere -> InitializeObject(m_program);
+    normal -> InitializeObject(m_program);
 
 }
 
@@ -64,18 +77,32 @@ void GLWidget::paintGL() {
     m_program->setUniformValue("projection",m_projection);
     m_program->setUniformValue("model",m_model);
 
+    /*
     for(std::vector<GLObject*>::iterator it = objects.begin();it!=objects.end();++it){
+        if(object_visibility[*it] == false) continue;
         (*it)->PaintObject(m_program);
     }
+    */
+
+    reflecto_sphere->PaintObject(m_program);
+    inray->PaintObject(m_program);
+    outray->PaintObject(m_program);
+    normal->PaintObject(m_program);
 
     m_program->release();
 
     QPainter painter(this);
     auto rect = this->rect();
     painter.setPen(Qt::white);
-    painter.setFont(QFont("Consolas",15));
-    painter.drawText(rect, Qt::AlignRight, QString("GONIOREFLECTOMETER UPPER MONITOR\nPress [ESC] to quit."));
-
+    painter.setFont(QFont("Consolas",8));
+    painter.drawText(rect, Qt::AlignRight, QString("GONIOREFLECTOMETER UPPER MONITOR"));
+    painter.setPen(Qt::red);
+    painter.drawText(rect, Qt::AlignRight, QString("\nIncident theta: ")+QString::number(inray->GetTheta()));
+    painter.drawText(rect, Qt::AlignRight, QString("\n\nIncident phi: ")+QString::number(inray->GetPhi()));
+    painter.setPen(Qt::green);
+    painter.drawText(rect, Qt::AlignRight, QString("\n\n\nIdeal specular reflected theta: ")+QString::number(outray->GetTheta()));
+    painter.drawText(rect, Qt::AlignRight, QString("\n\n\n\nIdeal specular reflected phi: ")+QString::number(outray->GetPhi()));
+    painter.end();
 }
 
 void GLWidget::resizeGL(int w, int h) {
@@ -88,4 +115,25 @@ void GLWidget::resizeGL(int w, int h) {
 void GLWidget::keyPressEvent(QKeyEvent *e){
     if (e->key() == Qt::Key_Escape)
         QApplication::quit();
+}
+
+void GLWidget::slotSetGLWidgetRayState(bool is_visible){
+    // object_visibility[objects[1]] = is_visible;
+    is_ray_visible = is_visible;
+}
+
+void GLWidget::slotSetGLWidgetSphereState(bool is_visible){
+    // object_visibility[objects[0]] = is_visible;
+    is_sphere_visible = is_visible;
+}
+
+void GLWidget::slotSetSphereTexture(QImage* image, float incident_theta, float incident_phi){
+    reflecto_sphere->setTexture(new QOpenGLTexture(*image));
+    // delete inray;
+    // delete outray;
+
+    // inray = new LightBeam(incident_theta,incident_phi,32,Qt::red,this);
+    // inray->InitializeObject(m_program);
+    inray->SetDirection(incident_theta, incident_phi);
+    outray->SetDirection(incident_theta, incident_phi+M_PI);
 }

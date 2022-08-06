@@ -1,6 +1,6 @@
 #include "lightbeam.h"
 
-LightBeam::LightBeam(float _theta, float _phi, float _length, QWidget *parent) : theta(_theta), phi(_phi), length(_length), GLObject{parent}
+LightBeam::LightBeam(float _theta, float _phi, float _length, QColor _color, QWidget *parent) : theta(_theta), phi(_phi), length(_length), color(_color), GLObject{parent}
 {
 
 }
@@ -9,7 +9,7 @@ void LightBeam::InitializeObject(QOpenGLShaderProgram* m_program){
     initializeOpenGLFunctions();
 
     QImage solid_color_image(1,1,QImage::Format_RGB16);
-    solid_color_image.fill(Qt::red);
+    solid_color_image.fill(color);
     texture = new QOpenGLTexture(solid_color_image);
 
     vao.create();
@@ -47,4 +47,24 @@ void LightBeam::PaintObject(QOpenGLShaderProgram* m_program){
     texture->release();
 
     vao.release();
+}
+
+
+void LightBeam::SetDirection(float theta, float phi){
+    qDebug()<<"test";
+    vbo.bind();
+    float* vertices = static_cast<float*>(vbo.map(QOpenGLBuffer::WriteOnly));
+    vertices[5] =  length * qCos(phi) * qSin(theta);
+    vertices[6] =  length * qCos(theta);
+    vertices[7] =  length * qSin(phi) * qSin(theta);
+    vbo.unmap();
+    vbo.release();
+}
+
+float LightBeam::GetTheta(){
+    return theta;
+}
+
+float LightBeam::GetPhi(){
+    return phi;
 }

@@ -35,7 +35,19 @@ private:
     QMatrix4x4 m_view;
     QMatrix4x4 m_projection;
     QMatrix4x4 m_model;
-    std::vector<GLObject*> objects;
+    // std::vector<GLObject*> objects;
+    LightBeam* inray;
+    LightBeam* outray;
+    ReflectoSphere* reflecto_sphere;
+    LightBeam* normal;
+
+    bool is_ray_visible;
+    bool is_sphere_visible;
+    // std::map<GLObject*, bool> object_visibility;
+private slots:
+    void slotSetGLWidgetRayState(bool is_visible);
+    void slotSetGLWidgetSphereState(bool is_visible);
+    void slotSetSphereTexture(QImage* image, float incident_theta, float incident_phi);
 };
 
 #endif // GLWIDGET_H
