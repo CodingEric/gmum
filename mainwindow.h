@@ -11,23 +11,35 @@
 #include <QGroupBox>
 #include <QSpinBox>
 #include <QLineEdit>
+#include <QTextEdit>
 #include <QtDebug>
 #include <QLabel>
 #include <QImage>
 #include <QVector3D>
 #include <QComboBox>
+#include <QMessageBox>
+#include <QPainter>
 
-#include <QtSerialPort>
 #include <QSerialPortInfo>
 
 #include "glwidget.h"
+#include "reflectometer.h"
+
 
 class MainWindow : public QWidget
 {
     Q_OBJECT
 public:
     MainWindow();
+
+    enum LogLevel{
+        Info,
+        Warning,
+        Error
+    };
+    Q_ENUM(LogLevel)
 private:
+
     QHBoxLayout* main_layout;
     QVBoxLayout* controller_layout;
 
@@ -89,15 +101,19 @@ private:
 
 // END Gonioreflectometer Control
 
+    QTextEdit* logger;
+
 // BEGIN Necessary Elements
 
-    QSerialPort serial;
+    Reflectometer* reflectometer;
     void updateCOMPorts();
 
     QImage* phong_texture;
     QImage* meter_texture;
 
     QVector2D phong_color_info;
+
+    void addLog(QString text, LogLevel log_level = LogLevel::Info);
 
 // END Necessary Elements
 
@@ -108,6 +124,7 @@ private slots:
     void onChkboxDoGradientStateChanged(int state);
     void onButtonCalcPhongMapClicked();
     void onButtonPhongImportClicked();
+    void onButtonCalcMeterMapClicked();
 };
 
 #endif // MAINWINDOW_H

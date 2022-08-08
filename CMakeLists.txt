@@ -22,5 +22,6 @@ add_executable(GMUM
   glwidget.h glwidget.cpp
   reflectosphere.h reflectosphere.cpp
   lightbeam.h lightbeam.cpp
+  reflectometer.h reflectometer.cpp
 )
 target_link_libraries(GMUM Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::OpenGLWidgets Qt${QT_VERSION_MAJOR}::SerialPort)

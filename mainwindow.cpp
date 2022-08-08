@@ -147,6 +147,15 @@ MainWindow::MainWindow()
 
 // END Gonioreflectometer Control
 
+    logger = new QTextEdit(this);
+    logger->setMaximumWidth(320);
+    logger->setMinimumWidth(320);
+    logger->setReadOnly(true);
+    logger->append("Gonioreflectometer 硬件通信日志窗口");
+    logger->setStyleSheet("QTextEdit { background-color: blue; color: white; padding: 5px; font-family: Consolas, Source Han Sans CN; }");
+
+    main_layout->addWidget(logger);
+
     controller_layout->addWidget(groupbox_phong);
     controller_layout->addWidget(groupbox_reflectometer);
 
@@ -160,6 +169,7 @@ MainWindow::MainWindow()
     connect(button_calc_phong_map, SIGNAL(clicked(bool)), this, SLOT(onButtonCalcPhongMapClicked()));
     connect(button_phong_import, SIGNAL(clicked(bool)), this, SLOT(onButtonPhongImportClicked()));
     connect(button_update_com_ports,&QPushButton::clicked, [=](){updateCOMPorts();});
+    connect(button_calc_meter_map, SIGNAL(clicked(bool)), this, SLOT(onButtonCalcMeterMapClicked()));
 }
 
 void MainWindow::updateCOMPorts(){
@@ -168,6 +178,9 @@ void MainWindow::updateCOMPorts(){
     combobox_com_ports->clear();
     for(int i=0;i<list.size();++i){
         combobox_com_ports->addItem(list.at(i).portName());
+    }
+    if(list.size()==0){
+        button_calc_meter_map->setEnabled(false);
     }
 }
 
@@ -181,6 +194,57 @@ void MainWindow::onChkboxSphereVisibilityStateChanged(int state){
 
 void MainWindow::onChkboxDoGradientStateChanged(int state){
     gl_widget -> setDoGradient(static_cast<bool>(state));
+}
+
+
+
+void MainWindow::onButtonCalcMeterMapClicked(){
+    addLog("正在初始化反射计连接...");
+
+    reflectometer = new Reflectometer(combobox_com_ports->currentText(),this);
+    if(reflectometer->initialize()){
+        addLog("反射计连接建立成功。");
+        addLog("正在设置入射光参数...");
+
+        if(!reflectometer->setLaser(spinbox_meter_re_theta->value(), spinbox_meter_re_phi->value())){
+            addLog(reflectometer->error(), LogLevel::Error);
+            QMessageBox msgbox(QMessageBox::Critical,"错误", "错误信息: "+reflectometer->error());
+            msgbox.exec();
+            delete reflectometer;
+            return;
+        }
+
+        addLog("设置入射光参数成功。");
+
+        for(int theta=0;theta<90;++theta){
+            for(int phi=0;phi<360;++phi){
+                for(int trials = 0; trials < 5; ++trials){
+                    reflectometer->flush();
+                    if(reflectometer->getIntensityInfo(theta, phi)){
+                        addLog(QString("已在第 %0 次尝试中获取到 theta = %1, phi = %2 的光强数据为 %3").arg(trials+1).arg(theta).arg(phi).arg(reflectometer->getLastIntensity(), 0, 'f', 3));
+                        meter_texture -> setPixelColor(phi,theta,QColor(255*reflectometer->getLastIntensity(),255*reflectometer->getLastIntensity(),255*reflectometer->getLastIntensity()));
+                        label_meter_calculated_image->setPixmap(QPixmap::fromImage(*meter_texture));
+                        break;
+                    }else{
+                        qDebug()<<QString("第 %0 次尝试获取 theta = %1, phi = %2 的光强数据出现错误，稍后重试 - ").arg(trials+1).arg(theta).arg(phi) + reflectometer->error();
+                        addLog(QString("第 %0 次尝试获取 theta = %1, phi = %2 的光强数据出现错误，稍后重试 - ").arg(trials+1).arg(theta).arg(phi) + reflectometer->error(), LogLevel::Error);
+                        if(trials == 4){
+                            addLog(QString("在第 %0 次尝试中依然无法获取到 theta = %1, phi = %2 的光强数据。本次取数过程中止。").arg(trials+1).arg(theta).arg(phi), LogLevel::Error);
+                            QMessageBox msgbox(QMessageBox::Critical,"错误", "错误信息: "+reflectometer->error());
+                            msgbox.exec();
+                            delete reflectometer;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }else{
+        addLog(reflectometer->error(), LogLevel::Error);
+        QMessageBox msgbox(QMessageBox::Critical,"错误", "错误信息: "+reflectometer->error());
+        msgbox.exec();
+    }
+    delete reflectometer;
 }
 
 
@@ -219,4 +283,16 @@ void MainWindow::onButtonPhongImportClicked(){
 
 void MainWindow::onChkboxDoDisplacementStateChanged(int state){
     gl_widget->setDoDisplacement(static_cast<bool>(state));
+}
+
+// TODO: remove duplicate
+template<typename QEnum>
+QString QtEnumToString (QEnum value)
+{
+  return QString(QMetaEnum::fromType<QEnum>().valueToKey(value));
+}
+
+void MainWindow::addLog(QString text, LogLevel log_level){
+    logger->append("[" + QDateTime::currentDateTime().toString("HH:mm:ss") + "]["+QtEnumToString(log_level)+"] "+text);
+    qApp->processEvents();
 }
