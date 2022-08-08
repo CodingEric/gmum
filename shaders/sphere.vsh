@@ -10,5 +10,9 @@ uniform sampler2D uTexture;
 
 void main(){
     oTexture = vTexture;
-    gl_Position = projection * view * model * vec4(vPos + float(do_displacement) * vPos * texture(uTexture, oTexture).r, 1.0);
+    if(!do_displacement){
+        gl_Position = projection * view * model * vec4(vPos, 1.0);
+        return;
+    }
+    gl_Position = projection * view * model * vec4(vPos * texture(uTexture, oTexture).r, 1.0);
 }

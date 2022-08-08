@@ -10,13 +10,18 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 
+#include <exception>
+
 class GLObject : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
     Q_OBJECT
 public:
-    GLObject(QWidget *parent = nullptr);
-    virtual void InitializeObject() = 0;
-    virtual void PaintObject(QMatrix4x4 m_view, QMatrix4x4 m_projection, QMatrix4x4 m_model, bool do_displacement) = 0;
+    explicit GLObject(QWidget *parent = nullptr);
+
+    virtual void initializeObject() = 0;
+    virtual void paintObject(QMatrix4x4 m_view, QMatrix4x4 m_projection, QMatrix4x4 m_model, bool do_displacement);
+    virtual void paintObject(QMatrix4x4 m_view, QMatrix4x4 m_projection, QMatrix4x4 m_model, bool do_displacement, QVector2D color_info, bool do_gradient);
+
     void setTexture(QOpenGLTexture* _texture);
 
 protected:
@@ -24,7 +29,6 @@ protected:
     QOpenGLBuffer vbo;
     QOpenGLTexture* texture;
     QOpenGLShaderProgram* program;
-
 };
 
 #endif // GLOBJECT_H

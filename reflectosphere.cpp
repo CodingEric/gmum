@@ -17,15 +17,14 @@ private:
     float v;
 };
 
-void ReflectoSphere::InitializeObject(){
+void ReflectoSphere::initializeObject(){
     initializeOpenGLFunctions();
 
-
+    // Initialize shaders.
 
     QFile vertex_shader_file(":/shaders/sphere.vsh");
     vertex_shader_file.open(QIODevice::ReadOnly | QIODevice::Text);
     QString vertex_shader = vertex_shader_file.readAll();
-
     QFile fragment_shader_file(":/shaders/sphere.fsh");
     fragment_shader_file.open(QIODevice::ReadOnly | QIODevice::Text);
     QString fragment_shader = fragment_shader_file.readAll();
@@ -35,14 +34,16 @@ void ReflectoSphere::InitializeObject(){
     program -> addShaderFromSourceCode(QOpenGLShader::Fragment, fragment_shader);
     program -> link();
 
-
+    // Initialize texture.
 
     QImage temp_texture(1,1,QImage::Format_RGB32);
-    temp_texture.fill(Qt::magenta);
+    temp_texture.fill(Qt::white);
     texture = new QOpenGLTexture(temp_texture);
 
     vao.create();
     vbo.create();
+
+    // Generate vertices.
 
     face_count = 0;
 
@@ -59,58 +60,52 @@ void ReflectoSphere::InitializeObject(){
             vertices.push_back(Point(qCos(phi)*qSin(theta),qCos(theta),qSin(phi)*qSin(theta), static_cast<float>(phi/(2.0f * M_PI)), static_cast<float>(theta/M_PI_2))); // theta, phi
             ++face_count;
         }
-    } 
+    }
+
+    // Setting up VAO & VBO.
 
     vao.bind();
     vbo.bind();
 
     vbo.allocate(&vertices[0], vertices.size() * sizeof(Point));
 
-    program->bind();
+    // Structure of VAOs: [x y z] [u v]
 
-    // 最后一个参数代表偏移量（周期），表示元组大小的数据不需要乘上float的大小。
+    program->bind();
     program->setAttributeBuffer("vPos", GL_FLOAT, 0 * sizeof(float), 3, 5 * sizeof(float));
     program->enableAttributeArray("vPos");
-
     program->setAttributeBuffer("vTexture", GL_FLOAT, 3 * sizeof(float), 2, 5 * sizeof(float));
     program->enableAttributeArray("vTexture");
-
     program->release();
+
     vao.release();
     vbo.release();
 }
 
-void ReflectoSphere::PaintObject(QMatrix4x4 m_view, QMatrix4x4 m_projection, QMatrix4x4 m_model, bool do_displacement){
+void ReflectoSphere::paintObject(QMatrix4x4 m_view, QMatrix4x4 m_projection, QMatrix4x4 m_model, bool do_displacement, QVector2D color_info, bool do_gradient){
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
     program->bind();
 
-    // 这跟顶点着色器的 uniform mat4 view 对应
-    // uniform 值和 in/out 相比，uniform是所有着色器统一使用的相同的值。
     program->setUniformValue("view",m_view);
     program->setUniformValue("projection",m_projection);
     program->setUniformValue("model",m_model);
     program->setUniformValue("do_displacement",do_displacement);
-
-
+    program->setUniformValue("colorInfo",color_info);
+    program->setUniformValue("doGradient",do_gradient);
 
     vao.bind();
-
     texture->bind();
     for(int i=0;i<face_count;++i){
         glDrawArrays(GL_POLYGON, 4*i, 4);
     }
     texture->release();
-    //glDrawArrays(GL_POLYGON, 4, 4);
-
     vao.release();
-
-
 
     program->release();
 
-    glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
 }

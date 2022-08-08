@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QtMath>
 #include <QObject>
 #include <QWidget>
 #include <QHBoxLayout>
@@ -14,7 +15,10 @@
 #include <QLabel>
 #include <QImage>
 #include <QVector3D>
-#include <QtMath>
+#include <QComboBox>
+
+#include <QtSerialPort>
+#include <QSerialPortInfo>
 
 #include "glwidget.h"
 
@@ -27,7 +31,18 @@ private:
     QHBoxLayout* main_layout;
     QVBoxLayout* controller_layout;
 
-// BEGIN groupbox_phong
+    GLWidget* gl_widget;
+
+// BEGIN Viewport Control
+
+    QCheckBox* chkbox_ray_visibility;
+    QCheckBox* chkbox_sphere_visibility;
+    QCheckBox* chkbox_do_displacement;
+    QCheckBox* chkbox_do_gradient;
+
+// END Viewport Control
+
+// BEGIN Phong Lighting Model Simulation
 
     QGroupBox* groupbox_phong;
     QVBoxLayout* groupbox_phong_main_layout;
@@ -35,63 +50,64 @@ private:
     QVBoxLayout* groupbox_phong_sublayout1;
     QVBoxLayout* groupbox_phong_sublayout2;
 
-// END groupbox_phong
-
-    QVBoxLayout* groupbox_reflectometer_layout;
-    GLWidget* gl_widget;
-    QCheckBox* chkbox_ray_visibility;
-    QCheckBox* chkbox_sphere_visibility;
-    QCheckBox* chkbox_do_displacement;
-
-    QGroupBox* groupbox_reflectometer;
-
+    QLabel* label_phong_in_theta;
     QSpinBox* spinbox_phong_in_theta;
+    QLabel* label_phong_in_phi;
     QSpinBox* spinbox_phong_in_phi;
+    QLabel* label_phong_order;
     QSpinBox* spinbox_phong_order;
 
-    QLabel* label_phong_in_phi;
-    QLabel* label_phong_in_theta;
-    QLabel* label_phong_order;
-    QLabel* label_phong_calculated_image;
-
-    QImage* phong_texture;
-    QImage* meter_texture;
+    QLabel* label_ka;
+    QDoubleSpinBox* spinbox_ka;
+    QLabel* label_kd;
+    QDoubleSpinBox* spinbox_kd;
+    QLabel* label_ks;
+    QDoubleSpinBox* spinbox_ks;
 
     QPushButton* button_calc_phong_map;
+    QLabel* label_phong_calculated_image;
     QPushButton* button_phong_import;
 
-    QSpinBox* spinbox_meter_re_theta;
-    QSpinBox* spinbox_meter_re_phi;
+// END Phong Lighting Model Simulation
+
+// BEGIN Gonioreflectometer Control
+
+    QGroupBox* groupbox_reflectometer;
+    QVBoxLayout* groupbox_reflectometer_layout;
+
+    QLabel* label_com_ports;
+    QComboBox* combobox_com_ports;
+    QPushButton* button_update_com_ports;
     QLabel* label_meter_re_phi;
+    QSpinBox* spinbox_meter_re_phi;
     QLabel* label_meter_re_theta;
+    QSpinBox* spinbox_meter_re_theta;
     QLabel* label_meter_calculated_image;
 
     QPushButton* button_calc_meter_map;
     QPushButton* button_meter_import;
 
-// BEGIN groupbox_phong_sublayout2
+// END Gonioreflectometer Control
 
-    QLabel* label_ka;
-    QDoubleSpinBox* spinbox_ka;
+// BEGIN Necessary Elements
 
-    QLabel* label_kd;
-    QDoubleSpinBox* spinbox_kd;
+    QSerialPort serial;
+    void updateCOMPorts();
 
-    QLabel* label_ks;
-    QDoubleSpinBox* spinbox_ks;
+    QImage* phong_texture;
+    QImage* meter_texture;
 
-// END groupbox_phong_sublayout2
+    QVector2D phong_color_info;
+
+// END Necessary Elements
 
 private slots:
     void onChkboxRayVisibilityStateChanged(int state);
     void onChkboxSphereVisibilityStateChanged(int state);
     void onChkboxDoDisplacementStateChanged(int state);
+    void onChkboxDoGradientStateChanged(int state);
     void onButtonCalcPhongMapClicked();
     void onButtonPhongImportClicked();
-signals:
-    void signalSetGLWidgetRayState(bool is_visible);
-    void signalSetGLWidgetSphereState(bool is_visible);
-    void signalPhongImport(QImage* texture, float incident_theta, float incident_phi);
 };
 
 #endif // MAINWINDOW_H
